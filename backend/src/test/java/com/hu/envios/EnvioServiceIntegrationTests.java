@@ -6,6 +6,7 @@ import com.hu.envios.dto.ActualizarEstadoRequest;
 import com.hu.envios.dto.RegistrarEnvioRequest;
 import com.hu.envios.dto.RegistrarEnvioResponse;
 import com.hu.envios.service.EnvioService;
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,7 +38,7 @@ class EnvioServiceIntegrationTests {
                 "Medellin",
                 "2.5",
                 "EXPRESS",
-                "2026-09-24"
+                LocalDate.now().plusDays(30).toString()
         ));
 
         assertThat(response.numeroGuia()).startsWith("LG-");

@@ -49,6 +49,7 @@ public class EnvioMapper {
                 envio.getDestinatario().getNombre(),
                 envio.getDireccionOrigen().getCiudad(),
                 envio.getDireccionDestino().getCiudad(),
+                envio.getFechaEstimadaEntrega().toString(),
                 eventos.stream().map(this::toEventoConsulta).toList()
         );
     }

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -24,6 +25,26 @@ public class ApiExceptionHandler {
     @ExceptionHandler(TransicionEstadoInvalidaException.class)
     ResponseEntity<ErrorResponse> handleInvalidTransition(TransicionEstadoInvalidaException exception) {
         return build(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(AsignacionTransporteNoPermitidaException.class)
+    ResponseEntity<ErrorResponse> handleAsignacionNoPermitida(AsignacionTransporteNoPermitidaException exception) {
+        return build(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(RecursoDuplicadoException.class)
+    ResponseEntity<ErrorResponse> handleDuplicate(RecursoDuplicadoException exception) {
+        return build(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(RecursoNoEncontradoException.class)
+    ResponseEntity<ErrorResponse> handleResourceNotFound(RecursoNoEncontradoException exception) {
+        return build(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException exception) {
+        return build(HttpStatus.UNAUTHORIZED, "Credenciales invalidas.");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

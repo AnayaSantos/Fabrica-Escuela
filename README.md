@@ -41,11 +41,16 @@ VITE_API_URL=http://localhost:8080
 
 ## Estado actual
 
-- Frontend integrado: implementado.
+- Frontend integrado: implementado para `HU-01` a `HU-04` (sin cambios en este sprint).
 - Backend Spring Boot: implementado en `backend/`.
-- API REST: implementada para las 4 HU.
+- API REST: implementada para las 4 HU originales + 5 HU del Sprint 2 (`HU-005`, `HU-007`, `HU-013`,
+  `HU-014`, `HU-015`), estas ultimas solo a nivel de API — sin pantallas nuevas en el frontend.
+- Autenticacion: login + JWT + roles (Administrador/Operador logistico/Cliente) implementados.
+- Esquema de base de datos: gestionado por Flyway (`backend/src/main/resources/db/migration/`), ya no
+  por `ddl-auto=update`.
 - PostgreSQL: configurado por Docker.
-- Persistencia real: lista para probar con Docker/PostgreSQL.
+- Persistencia real: verificada extremo a extremo con Docker/PostgreSQL, incluyendo arranque desde una
+  base de datos completamente nueva (ver `docs/05-verificacion-hu-sprint2.md`).
 
 ## Documentacion de avance
 
@@ -53,6 +58,7 @@ VITE_API_URL=http://localhost:8080
 - [Modelo de datos PostgreSQL](docs/02-modelo-datos-postgresql.md)
 - [API REST y arquitectura](docs/03-api-rest-y-arquitectura.md)
 - [Verificacion de HU](docs/04-verificacion-hu.md)
+- [Verificacion de HU — Sprint 2](docs/05-verificacion-hu-sprint2.md)
 - [Diagrama ER editable](docs/diagrama-er.drawio)
 - [Diagrama ER PNG](docs/diagrama-er.png)
 
