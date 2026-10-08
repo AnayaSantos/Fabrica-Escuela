@@ -1,0 +1,21 @@
+# Node
+node_modules/
+
+# Builds
+dist/
+backend/target/
+
+# Logs
+*.log
+
+# Env
+.env
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Claude Code (archivos internos de la sesion, no del proyecto)
+.claude/
