@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#163945" />
+    <title>TraceLog</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Trebuchet MS", sans-serif;
+        background: #f4f6f9;
+        color: #163945;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        display: block;
+        height: 100vh;
+        min-height: 0;
+        overflow: hidden;
+      }
+
+      #app-shell {
+        display: grid;
+        grid-template-rows: 70px minmax(0, 1fr);
+        width: 100%;
+        height: 100vh;
+        min-height: 0;
+      }
+
+      .login-screen {
+        display: none;
+      }
+
+      .login-panel {
+        position: absolute;
+        top: calc(100% + 12px);
+        right: 0;
+        z-index: 20;
+        width: min(350px, calc(100vw - 24px));
+        padding: 22px;
+        border: 1px solid rgba(22, 57, 69, 0.16);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 16px 38px rgba(22, 57, 69, 0.2);
+      }
+
+      .login-heading {
+        margin: 0;
+        color: #163945;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .login-subtitle {
+        margin: 6px 0 18px;
+        color: #53666a;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .login-form {
+        display: grid;
+        gap: 17px;
+      }
+
+      .login-error {
+        margin: 0;
+        color: #b42318;
+        font-size: 12px;
+      }
+
+      .login-field {
+        display: grid;
+        gap: 7px;
+        color: #24464e;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .login-field input,
+      .login-field select {
+        width: 100%;
+        min-height: 40px;
+        padding: 8px 10px;
+        border: 1px solid #b8c6c5;
+        border-radius: 6px;
+        background: #fff;
+        color: #183940;
+        font: inherit;
+        font-size: 15px;
+      }
+
+      .login-field input:focus,
+      .login-field select:focus {
+        border-color: #167569;
+        outline: 2px solid rgba(22, 117, 105, 0.18);
+      }
+
+      .login-submit {
+        justify-content: center;
+        width: 100%;
+        min-height: 42px;
+        margin-top: 4px;
+        border: 0;
+        border-radius: 6px;
+        background: #176b62;
+        box-shadow: none;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .login-submit:hover {
+        border-color: #12574f;
+        background: #12574f;
+        box-shadow: none;
+      }
+
+      .demo-note {
+        margin: 13px 0 0;
+        color: #667679;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .login-panel[hidden] {
+        display: none;
+      }
+
+      .topbar {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        min-width: 0;
+        height: 70px;
+        padding: 0 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(22, 57, 69, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .brand-logo {
+        display: block;
+        flex: 0 0 auto;
+        width: auto;
+        height: auto;
+        max-width: 160px;
+        max-height: 40px;
+        border-radius: 6px;
+      }
+
+      nav {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .profile-control {
+        position: relative;
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 8px;
+        color: #fff;
+        font-size: 12px;
+      }
+
+      .profile-name {
+        color: #fff;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .logout-button {
+        min-height: 36px;
+        padding: 7px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
+      .login-trigger {
+        min-height: 38px;
+        padding: 8px 13px;
+        border-radius: 6px;
+        font-size: 13px;
+      }
+
+      .login-trigger svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.8;
+      }
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 0 0 auto;
+        min-height: 40px;
+        padding: 8px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow:
+          inset 0 1px 1px rgba(255, 255, 255, 0.3),
+          0 4px 10px rgba(0, 0, 0, 0.15);
+        color: #fff;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      button[hidden] {
+        display: none;
+      }
+
+      button:hover {
+        border-color: rgba(224, 130, 56, 0.75);
+        background: rgba(224, 130, 56, 0.9);
+        box-shadow: 0 0 12px rgba(224, 130, 56, 0.5);
+        color: #fff;
+      }
+
+      .nav-icon {
+        display: inline-flex;
+        flex: 0 0 18px;
+        width: 20px;
+        height: 18px;
+        align-items: center;
+        justify-content: center;
+        color: currentColor;
+      }
+
+      .nav-icon svg {
+        display: block;
+        width: 18px;
+        height: 18px;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.7;
+      }
+
+      button[aria-current="page"] {
+        border-color: rgba(224, 130, 56, 0.9);
+        background: rgba(224, 130, 56, 0.9);
+        box-shadow: 0 0 12px rgba(224, 130, 56, 0.5);
+        color: #fff;
+        font-weight: 600;
+      }
+
+      button:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+      }
+
+      main {
+        width: 100%;
+        height: calc(100vh - 70px);
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+        background: #f4f6f9;
+      }
+
+      #module-root {
+        display: block;
+        width: 100%;
+        height: calc(100vh - 70px);
+        min-height: 0;
+        background: #f4f6f9;
+        overflow: auto;
+      }
+
+      @media (max-width: 760px) {
+        .topbar {
+          gap: 8px;
+          padding: 0 12px;
+        }
+
+        .brand-logo {
+          max-width: 110px;
+        }
+
+        nav {
+          justify-content: flex-start;
+          gap: 8px;
+        }
+
+        .profile-name {
+          max-width: 112px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        button {
+          gap: 8px;
+          padding: 8px 12px;
+          font-size: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app-shell">
+      <header class="topbar" aria-label="Menú principal TraceLog">
+        <img id="brand-logo" class="brand-logo" alt="TraceLog" />
+        <nav aria-label="Navegación de historias">
+          <button
+            type="button"
+            data-title="Registrar Envío"
+            data-route="#/hu-01"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z" />
+                <path d="m4.3 7.5 7.7 4.4 7.7-4.4M12 12v9" />
+                <path d="M12 6v4M10 8h4" /></svg></span
+            >Registrar Envío
+          </button>
+          <button
+            type="button"
+            aria-current="page"
+            data-title="Consultar Envío"
+            data-route="#/hu-02"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <path
+                  d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"
+                />
+                <path d="M7 8v8M10 8v8M13 8v8M16 8v8" /></svg></span
+            >Consultar Envío
+          </button>
+          <button
+            type="button"
+            data-title="Actualizar Estado"
+            data-route="#/hu-03"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z" />
+                <path d="m4.3 7.5 7.7 4.4 7.7-4.4M12 12v9" />
+                <path
+                  d="M8 10a4.5 4.5 0 0 1 7.7-3.2L17 8M17 5v3h-3M16 14a4.5 4.5 0 0 1-7.7 3.2L7 16m0 3v-3h3"
+                /></svg></span
+            >Actualizar Estado
+          </button>
+          <button
+            type="button"
+            data-title="Registrar Evento"
+            data-route="#/hu-04"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <rect x="4" y="5" width="16" height="16" rx="2" />
+                <path d="M8 3v4M16 3v4M4 10h16M8 14h3M8 17h6" /></svg></span
+            >Registrar Evento
+          </button>
+          <button
+            type="button"
+            data-title="Registrar Ruta de Transporte"
+            data-route="#/hu-14"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <circle cx="6" cy="18" r="2" />
+                <circle cx="18" cy="6" r="2" />
+                <path d="M8 18h3a3 3 0 0 0 3-3v-3a3 3 0 0 1 3-3" />
+                <path d="M6 16v-3a3 3 0 0 1 3-3h2" /></svg></span
+            >Registrar Ruta de Transporte
+          </button>
+          <button
+            type="button"
+            data-title="Asignación de Transporte"
+            data-route="#/hu-07"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <path d="M3 6h11v11H3zM14 10h4l3 3v4h-7" />
+                <circle cx="7.5" cy="18" r="1.5" />
+                <circle cx="17.5" cy="18" r="1.5" /></svg></span
+            >Asignación de Transporte
+          </button>
+          <button
+            type="button"
+            data-title="Registrar Usuario"
+            data-route="#/hu-05"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <path
+                  d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20"
+                />
+                <circle cx="10" cy="7.5" r="3.5" />
+                <path d="M19 8v6M16 11h6" /></svg></span
+            >Registrar Usuario
+          </button>
+          <button
+            type="button"
+            data-title="Centros de Distribución"
+            data-route="#/hu-13"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <path d="M3 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+                <path
+                  d="M17 9h2a2 2 0 0 1 2 2v10M7 7h4M7 11h4M7 15h4M7 19h4M19 15h.01"
+                /></svg></span
+            >Centros de Distribución
+          </button>
+        </nav>
+        <div class="profile-control">
+          <span id="active-profile" class="profile-name" hidden></span>
+          <button
+            id="login-trigger"
+            class="login-trigger"
+            type="button"
+            aria-expanded="false"
+            aria-controls="login-panel"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <path d="m10 17 5-5-5-5M15 12H3" />
+            </svg>
+            Iniciar sesión
+          </button>
+          <button id="logout-button" class="logout-button" type="button" hidden>
+            Cerrar sesión
+          </button>
+          <section
+            id="login-panel"
+            class="login-panel"
+            aria-labelledby="login-heading"
+            hidden
+          >
+            <h1 id="login-heading" class="login-heading">Iniciar sesión</h1>
+            <p class="login-subtitle">Accede a tu cuenta.</p>
+            <form id="login-form" class="login-form">
+              <label class="login-field" for="login-email">
+                Correo electrónico
+                <input
+                  id="login-email"
+                  name="email"
+                  type="email"
+                  autocomplete="username"
+                  placeholder="nombre@empresa.com"
+                  required
+                />
+              </label>
+              <label class="login-field" for="login-password">
+                Contraseña
+                <input
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Ingresa tu contraseña"
+                  required
+                />
+              </label>
+              <button class="login-submit" type="submit">Entrar</button>
+              <p id="login-error" class="login-error" role="alert" hidden>
+                Correo o contraseña incorrectos.
+              </p>
+            </form>
+            <p class="demo-note">
+              Inicia sesión con una cuenta registrada en el backend (p. ej. el
+              administrador por defecto).
+            </p>
+          </section>
+        </div>
+      </header>
+      <main aria-label="Contenido del módulo">
+        <div id="module-root"></div>
+      </main>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script type="module">
+      import { iniciarSesion, cerrarSesion, obtenerSesion } from "/src/shared/api/auth.ts";
+
+      const brandLogo = document.querySelector("#brand-logo");
+      const loginForm = document.querySelector("#login-form");
+      const loginError = document.querySelector("#login-error");
+      const activeProfile = document.querySelector("#active-profile");
+      const loginTrigger = document.querySelector("#login-trigger");
+      const loginPanel = document.querySelector("#login-panel");
+      const logoutButton = document.querySelector("#logout-button");
+      const loginSubmit = document.querySelector(".login-submit");
+      const storyButtons = document.querySelectorAll("nav button");
+      const moduleRoles = {
+        "Registrar Envío": ["administrador", "operador"],
+        "Consultar Envío": ["cliente", "operador", "administrador"],
+        "Actualizar Estado": ["administrador", "operador"],
+        "Registrar Evento": ["operador", "administrador"],
+        "Registrar Ruta de Transporte": ["administrador"],
+        "Asignación de Transporte": ["administrador", "operador"],
+        "Registrar Usuario": ["administrador"],
+        "Centros de Distribución": ["administrador", "operador"],
+      };
+
+      const logoPath =
+        window.location.protocol === "file:"
+          ? "public/assets/Logo_Tracelog.jfif"
+          : "/assets/Logo_Tracelog.jfif";
+      brandLogo.src = logoPath;
+
+      const activateButton = (button) => {
+        if (window.location.hash !== button.dataset.route) {
+          window.location.hash = button.dataset.route;
+        }
+        storyButtons.forEach((item) => item.removeAttribute("aria-current"));
+        button.setAttribute("aria-current", "page");
+      };
+
+      const applyRole = (role) => {
+        const allowedButtons = [...storyButtons].filter((button) =>
+          moduleRoles[button.dataset.title].includes(role),
+        );
+
+        storyButtons.forEach((button) => {
+          button.hidden = !allowedButtons.includes(button);
+        });
+
+        const requestedButton = allowedButtons.find(
+          (button) => button.dataset.route === window.location.hash,
+        );
+        if (["#/hu-15", "#/hu-19"].includes(window.location.hash) && !requestedButton) {
+          return;
+        }
+
+        const activeButton = requestedButton ||
+          allowedButtons.find(
+            (button) => button.getAttribute("aria-current") === "page",
+          ) || allowedButtons[0];
+        activateButton(activeButton);
+      };
+
+      storyButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          activateButton(button);
+        });
+      });
+
+      loginTrigger.addEventListener("click", () => {
+        loginPanel.hidden = !loginPanel.hidden;
+        loginTrigger.setAttribute("aria-expanded", String(!loginPanel.hidden));
+        if (!loginPanel.hidden) document.querySelector("#login-email").focus();
+      });
+
+      const mostrarSesionActiva = (sesion) => {
+        loginError.hidden = true;
+        applyRole(sesion.rol);
+        loginTrigger.hidden = true;
+        loginPanel.hidden = true;
+        loginTrigger.setAttribute("aria-expanded", "false");
+        logoutButton.hidden = false;
+        activeProfile.textContent = `Sesión: ${sesion.nombre}`;
+        activeProfile.hidden = false;
+      };
+
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!loginForm.reportValidity()) return;
+
+        const formData = new FormData(loginForm);
+        const correo = String(formData.get("email")).trim();
+        const password = String(formData.get("password"));
+
+        loginSubmit.disabled = true;
+        try {
+          const sesion = await iniciarSesion(correo, password);
+          mostrarSesionActiva(sesion);
+          loginForm.reset();
+        } catch {
+          loginError.hidden = false;
+        } finally {
+          loginSubmit.disabled = false;
+        }
+      });
+
+      logoutButton.addEventListener("click", () => {
+        cerrarSesion();
+        loginTrigger.hidden = false;
+        logoutButton.hidden = true;
+        activeProfile.hidden = true;
+        activeProfile.textContent = "";
+        loginError.hidden = true;
+        loginForm.reset();
+        applyRole("cliente");
+      });
+
+      const sesionPrevia = obtenerSesion();
+      if (sesionPrevia) {
+        mostrarSesionActiva(sesionPrevia);
+      } else {
+        applyRole("cliente");
+      }
+    </script>
+  </body>
+</html>

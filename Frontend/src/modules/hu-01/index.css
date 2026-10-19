@@ -1,0 +1,57 @@
+.module-hu-01 {
+  font-family: Inter, system-ui, sans-serif;
+  color: #17324d;
+  background: #eef4f8;
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.module-hu-01 * {
+  box-sizing: border-box;
+}
+
+.module-hu-01 .page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.module-hu-01 .card {
+  width: min(100%, 620px);
+  padding: 48px;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 20px 50px rgb(23 50 77 / 15%);
+}
+
+.module-hu-01 .badge {
+  color: #087f8c;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.module-hu-01 h1 {
+  margin: 16px 0 8px;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+}
+
+.module-hu-01 p {
+  color: #526b80;
+  line-height: 1.6;
+}
+
+.module-hu-01 .status {
+  display: grid;
+  gap: 8px;
+  margin-top: 28px;
+  padding: 18px;
+  border-left: 4px solid #13a06b;
+  background: #effaf5;
+}
+
+.module-hu-01 .error {
+  color: #b42318;
+}

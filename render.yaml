@@ -1,0 +1,66 @@
+# Blueprint de despliegue en Render (https://render.com).
+#
+# Los nombres "envios-backend" y "envios-frontend" determinan la URL publica final
+# (https://envios-backend.onrender.com, https://envios-frontend.onrender.com). Si los
+# cambias al crear el blueprint, actualiza tambien VITE_API_BASE_URL y
+# APP_CORS_ALLOWED_ORIGINS mas abajo para que coincidan.
+
+databases:
+  - name: envios-db
+    plan: free
+    databaseName: envios_hu
+    user: envios
+
+services:
+  - type: web
+    name: envios-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: envios-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: envios-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: envios-db
+          property: database
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: envios-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: envios-db
+          property: password
+      - key: SPRING_JPA_DDL_AUTO
+        value: validate
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: https://envios-frontend.onrender.com
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_SEED_NOMBRE
+        value: Administrador
+      - key: ADMIN_SEED_EMAIL
+        value: admin@envios.local
+      - key: ADMIN_SEED_PASSWORD
+        value: CambiarEnProduccion123!
+
+  - type: web
+    name: envios-frontend
+    runtime: static
+    buildCommand: cd Frontend && npm install && npm run build
+    staticPublishPath: ./Frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://envios-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

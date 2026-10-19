@@ -1,15 +1,27 @@
-# Frontend integrado de HU
+# Sistema de gestion de envios (TraceLog)
 
-Esta carpeta integra las pantallas que estaban separadas en las contribuciones `HU-01`, `HU-02`, `HU-3` y `HU-04`.
+Frontend integrado (carpeta `Frontend/`) + backend Spring Boot (carpeta `backend/`), conectados a un
+backend real con autenticacion JWT.
 
 ## Ejecutar localmente
 
+Backend (requiere PostgreSQL, ver `docker-compose.yml` para levantar solo la base de datos):
+
 ```bash
+cd backend
+mvn spring-boot:run
+```
+
+Frontend:
+
+```bash
+cd Frontend
 npm install
 npm run dev
 ```
 
-Luego abre `http://localhost:5173`.
+Luego abre `http://localhost:5173`. Admin sembrado por defecto: `admin@envios.local` / `Admin123!`
+(configurable con `ADMIN_SEED_EMAIL`/`ADMIN_SEED_PASSWORD`).
 
 ## Ejecutar sistema completo con Docker
 
@@ -25,26 +37,22 @@ Servicios:
 
 ## Que incluye
 
-- `HU-01`: registro de un nuevo envio.
-- `HU-02`: consulta de envio por numero de guia.
-- `HU-03`: actualizacion del estado de un envio.
-- `HU-04`: bitacora de eventos logisticos.
+- `HU-01` a `HU-04`: registro, consulta, actualizacion de estado y bitacora de eventos de un envio.
+- `HU-005`: autenticacion de usuarios (login JWT) y registro de usuarios (solo administrador).
+- `HU-007`: asignacion de transporte (ruta + vehiculo) a un envio.
+- `HU-013`: gestion de centros de distribucion.
+- `HU-014`: gestion de rutas de transporte.
+- `HU-015`: fecha estimada de entrega.
+- `HU-19`: alerta visual de tiempo de entrega (solo frontend, sin endpoint propio en el backend).
 
-La app usa `localStorage` como base de datos local para que pueda probarse sin backend.
-
-Para preparar conexion con backend real, copia `.env.example` como `.env` y cambia:
-
-```bash
-VITE_DATA_SOURCE=api
-VITE_API_URL=http://localhost:8080
-```
+Variable de entorno del frontend: `VITE_API_BASE_URL` (URL base del backend, ver `.env.example`).
 
 ## Estado actual
 
-- Frontend integrado: implementado para `HU-01` a `HU-04` (sin cambios en este sprint).
+- Frontend integrado: todas las HU listadas arriba, conectadas al backend real (sin modo local/mock).
 - Backend Spring Boot: implementado en `backend/`.
 - API REST: implementada para las 4 HU originales + 5 HU del Sprint 2 (`HU-005`, `HU-007`, `HU-013`,
-  `HU-014`, `HU-015`), estas ultimas solo a nivel de API — sin pantallas nuevas en el frontend.
+  `HU-014`, `HU-015`).
 - Autenticacion: login + JWT + roles (Administrador/Operador logistico/Cliente) implementados.
 - Esquema de base de datos: gestionado por Flyway (`backend/src/main/resources/db/migration/`), ya no
   por `ddl-auto=update`.
@@ -62,6 +70,6 @@ VITE_API_URL=http://localhost:8080
 - [Diagrama ER editable](docs/diagrama-er.drawio)
 - [Diagrama ER PNG](docs/diagrama-er.png)
 
-## Siguiente paso tecnico
+## Despliegue
 
-Validar el flujo extremo a extremo con Docker/PostgreSQL ejecutando `docker compose up --build`. El frontend ya cuenta con `src/services/shipmentService.ts`, que puede usar `localStorage` o API REST segun `VITE_DATA_SOURCE`.
+Ver `render.yaml` para el blueprint de despliegue en Render (backend + frontend + PostgreSQL).

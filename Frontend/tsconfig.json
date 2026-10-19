@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["vite/client", "node"],
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@tracelog/api-client": ["./src/shared/api/index.ts"],
+      "@tracelog/hu-15/fecha-estimada": ["./src/modules/hu-15/utils/fechaEstimada.ts"],
+      "@tracelog/hu-19/ejemplos": ["./src/modules/hu-19/ejemplos.ts"],
+      "@tracelog/hu-19": ["./src/modules/hu-19/components/AlertaTiempoEntrega.tsx"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

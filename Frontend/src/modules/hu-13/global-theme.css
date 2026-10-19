@@ -1,0 +1,108 @@
+/* ==========================================================================
+   Tracelog Global Theme - Sistema de Gestión Logística
+   Inspirado en los lineamientos compartidos (HU-01, HU-02, HU-03, HU-04)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --tracelog-font: 'Poppins', system-ui, -apple-system, sans-serif;
+
+  /* Colores Principales */
+  --tracelog-primary: #1976d2;
+  --tracelog-primary-hover: #1565c0;
+  --tracelog-primary-active: #0d47a1;
+
+  /* Superficies y Fondos */
+  --tracelog-background: #f8fafc;
+  --tracelog-surface: #ffffff;
+  --tracelog-surface-muted: #f1f5f9;
+
+  /* Tipografía y Textos */
+  --tracelog-text: #0f172a;
+  --tracelog-text-muted: #64748b;
+  --tracelog-text-inverse: #ffffff;
+
+  /* Bordes */
+  --tracelog-border: #000000;
+  --tracelog-border-input: #000000;
+  --tracelog-border-light: #e2e8f0;
+
+  /* Estados: Éxito (CA-13-A) */
+  --tracelog-success-bg: #00ff2b;
+  --tracelog-success-text: #000000;
+  --tracelog-success-border: #000000;
+
+  /* Estados: Duplicado y Error (CA-13-B, CA-13-C) */
+  --tracelog-error: #e53e3e;
+  --tracelog-error-bg: #ffebeb;
+  --tracelog-error-border: #ef4444;
+
+  /* Sombras y Radios */
+  --tracelog-radius: 0.75rem;
+  --tracelog-radius-pill: 9999px;
+  --tracelog-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --tracelog-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --tracelog-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+body {
+  font-family: var(--tracelog-font);
+  background-color: var(--tracelog-background);
+  color: var(--tracelog-text);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Identificadores Globales y Estructura Semántica */
+#registrar-centro-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--tracelog-font);
+}
+
+#formulario-registro-centro {
+  width: 100%;
+}
+
+#boton-guardar-centro {
+  background-color: var(--tracelog-primary);
+  color: var(--tracelog-text-inverse);
+  border: 2px solid var(--tracelog-border);
+  border-radius: var(--tracelog-radius);
+  transition: all 0.2s ease-in-out;
+}
+
+#boton-guardar-centro:hover {
+  background-color: var(--tracelog-primary-hover);
+}
+
+#boton-guardar-centro:active {
+  background-color: var(--tracelog-primary-active);
+  transform: translateY(1px);
+}
+
+#alerta-duplicado {
+  background-color: var(--tracelog-error-bg);
+  border: 1.5px solid var(--tracelog-error-border);
+  border-radius: var(--tracelog-radius);
+  color: var(--tracelog-text);
+}
+
+#mensaje-exito {
+  background-color: var(--tracelog-success-bg);
+  color: var(--tracelog-success-text);
+  border: 1.5px solid var(--tracelog-success-border);
+  border-radius: var(--tracelog-radius-pill);
+}
+
+/* Modales y utilidades consistentes con HU-03 y HU-04 */
+#modal-exito,
+#modal-error,
+#modal-criterios {
+  border-radius: var(--tracelog-radius);
+  box-shadow: var(--tracelog-shadow-lg);
+}
