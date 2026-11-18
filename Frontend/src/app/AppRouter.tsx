@@ -4,7 +4,9 @@ import Hu02 from '../modules/hu-02/App';
 import Hu03 from '../modules/hu-03/App';
 import Hu04 from '../modules/hu-04/App';
 import Hu05 from '../modules/hu-05/App';
+import Hu06 from '../modules/hu-06/App';
 import Hu07 from '../modules/hu-07/App';
+import Hu11 from '../modules/hu-11/App';
 import Hu13 from '../modules/hu-13/App';
 import Hu14 from '../modules/hu-14/App';
 import Hu15 from '../modules/hu-15/App';
@@ -17,7 +19,9 @@ const modules = {
   'hu-03': Hu03,
   'hu-04': Hu04,
   'hu-05': Hu05,
+  'hu-06': Hu06,
   'hu-07': Hu07,
+  'hu-11': Hu11,
   'hu-13': Hu13,
   'hu-14': Hu14,
   'hu-15': Hu15,
@@ -30,7 +34,9 @@ const pageTitles: Record<ModuleId, string> = {
   'hu-03': 'Actualizar Estado',
   'hu-04': 'Registrar Evento',
   'hu-05': 'Registrar Usuario',
+  'hu-06': 'Historial de Movimientos',
   'hu-07': 'Asignación de Transporte',
+  'hu-11': 'Buscar Envíos',
   'hu-13': 'Centros de Distribución',
   'hu-14': 'Registrar Ruta de Transporte',
   'hu-15': 'Fecha Estimada de Entrega',

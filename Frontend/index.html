@@ -445,6 +445,28 @@
                 /></svg></span
             >Centros de Distribución
           </button>
+          <button
+            type="button"
+            data-title="Historial de Movimientos"
+            data-route="#/hu-06"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l4 2" /></svg></span
+            >Historial de Movimientos
+          </button>
+          <button
+            type="button"
+            data-title="Buscar Envíos"
+            data-route="#/hu-11"
+          >
+            <span class="nav-icon" aria-hidden="true"
+              ><svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-4.3-4.3" /></svg></span
+            >Buscar Envíos
+          </button>
         </nav>
         <div class="profile-control">
           <span id="active-profile" class="profile-name" hidden></span>
@@ -533,6 +555,8 @@
         "Asignación de Transporte": ["administrador", "operador"],
         "Registrar Usuario": ["administrador"],
         "Centros de Distribución": ["administrador", "operador"],
+        "Historial de Movimientos": ["cliente", "operador", "administrador"],
+        "Buscar Envíos": ["administrador", "operador"],
       };
 
       const logoPath =

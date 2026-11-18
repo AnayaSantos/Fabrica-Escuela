@@ -7,6 +7,7 @@ import './modules/hu-02/index.css';
 import './modules/hu-03/index.css';
 import './modules/hu-04/index.css';
 import './modules/hu-05/index.css';
+import './modules/hu-06/index.css';
 import './modules/hu-07/index.css';
 import './modules/hu-13/index.css';
 import './modules/hu-14/index.css';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Check } from 'lucide-react';
+import { Search, Check, AlertTriangle } from 'lucide-react';
 import { AlertaTiempoEntrega } from '@tracelog/hu-19';
 import {
   DATOS_GUIA_EJEMPLO,
@@ -7,6 +7,8 @@ import {
   GUIA_EJEMPLO,
 } from '@tracelog/hu-19/ejemplos';
 import { formatearFechaEstimada } from '@tracelog/hu-15/fecha-estimada';
+import { ModalIncidencia } from '../../../hu-16/components/ModalIncidencia';
+import type { IncidenciaRegistrada } from '../../../hu-16/types';
 import type { DatosGuia, EstadoConsulta } from './types';
 import { envioService } from './envioService';
 
@@ -15,6 +17,8 @@ export const ConsultaEnvio: React.FC = () => {
   const [estadoConsulta, setEstadoConsulta] = useState<EstadoConsulta>('IDLE');
   const [cargando, setCargando] = useState(false);
   const [datos, setDatos] = useState<DatosGuia | null>(null);
+  const [modalIncidenciaAbierto, setModalIncidenciaAbierto] = useState(false);
+  const [incidenciaRegistrada, setIncidenciaRegistrada] = useState<IncidenciaRegistrada | null>(null);
 
   const handleConsultar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,7 +122,33 @@ export const ConsultaEnvio: React.FC = () => {
             </div>
           </div>
           <AlertaTiempoEntrega estado={datos.alertaTiempo} />
+
+          <button
+            type="button"
+            id="btn-reportar-incidencia"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700"
+            onClick={() => { setIncidenciaRegistrada(null); setModalIncidenciaAbierto(true); }}
+          >
+            <AlertTriangle size={15} aria-hidden="true" /> Reportar incidencia
+          </button>
+
+          {incidenciaRegistrada && (
+            <p role="status" className="mt-3 text-center text-sm font-medium text-[#16a34a]">
+              Incidencia registrada correctamente.
+            </p>
+          )}
         </div>
+      )}
+
+      {modalIncidenciaAbierto && datos && (
+        <ModalIncidencia
+          numeroGuia={datos.numeroGuia}
+          onCerrar={() => setModalIncidenciaAbierto(false)}
+          onRegistrada={(incidencia) => {
+            setModalIncidenciaAbierto(false);
+            setIncidenciaRegistrada(incidencia);
+          }}
+        />
       )}
 
       {/* CA-02-B: Guía Inexistente */}

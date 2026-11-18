@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { getModuleId, MODULE_IDS } from './routes';
 
-test('resuelve las diez rutas de módulo', () => {
+test('resuelve todas las rutas de módulo', () => {
   for (const moduleId of MODULE_IDS) {
     assert.equal(getModuleId(`#/${moduleId}`), moduleId);
   }
