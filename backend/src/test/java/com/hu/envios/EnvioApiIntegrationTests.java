@@ -8,11 +8,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -30,7 +32,9 @@ class EnvioApiIntegrationTests {
     }
 
     @Test
+    @WithMockUser(authorities = "ROLE_ADMINISTRADOR")
     void flujoRestCompletoParaLasCuatroHu() throws Exception {
+        String fechaEstimadaEntrega = LocalDate.now().plusDays(30).toString();
         MvcResult registro = mockMvc.perform(post("/api/envios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -47,9 +51,9 @@ class EnvioApiIntegrationTests {
                                   "ciudadDestino": "Medellin",
                                   "peso": "2.5",
                                   "tipoServicio": "EXPRESS",
-                                  "fechaEstimadaEntrega": "2026-09-24"
+                                  "fechaEstimadaEntrega": "%s"
                                 }
-                                """))
+                                """.formatted(fechaEstimadaEntrega)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.numeroGuia", startsWith("LG-")))
                 .andReturn();
@@ -62,6 +66,7 @@ class EnvioApiIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.numeroGuia").value(numeroGuia))
                 .andExpect(jsonPath("$.estadoActual").value("Pendiente de recolecci\u00f3n"))
+                .andExpect(jsonPath("$.fechaEstimadaEntrega").value(fechaEstimadaEntrega))
                 .andExpect(jsonPath("$.eventos", hasSize(1)));
 
         mockMvc.perform(patch("/api/envios/{numeroGuia}/estado", numeroGuia)

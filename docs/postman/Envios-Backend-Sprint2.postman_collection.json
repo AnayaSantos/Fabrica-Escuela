@@ -1,0 +1,466 @@
+{
+  "info": {
+    "name": "Envios Backend - Sprint 2",
+    "description": "Coleccion para probar el backend de envios (HU-01..HU-04 + Sprint 2: HU-005, HU-007, HU-013, HU-014, HU-015) sin frontend. Ejecuta las carpetas en orden: Auth -> Usuarios -> Envios -> Eventos -> Centros de Distribucion -> Rutas -> Vehiculos -> Asignacion de Transporte. Cada request que crea algo guarda su id/token automaticamente en variables de entorno para que las siguientes requests ya vengan listas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Login (administrador sembrado)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@envios.local\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "auth": { "type": "noauth" },
+            "description": "Correo/password por defecto de desarrollo (ADMIN_SEED_EMAIL / ADMIN_SEED_PASSWORD). Si los cambiaste por variables de entorno en docker-compose, actualiza este body."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.environment.set(\"token\", data.token);",
+                  "    console.log('Token guardado en {{token}}');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Usuarios (solo ADMIN)",
+      "item": [
+        {
+          "name": "Crear usuario Operador Logistico",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Operador Prueba\",\n  \"correo\": \"operador.prueba@envios.local\",\n  \"password\": \"ClaveSegura1\",\n  \"rol\": \"OPERADOR_LOGISTICO\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/usuarios", "host": ["{{baseUrl}}"], "path": ["api", "usuarios"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "description": "201 esperado. Si repites esta request con el mismo correo, espera 409 (CA-05-B)."
+          }
+        },
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/usuarios", "host": ["{{baseUrl}}"], "path": ["api", "usuarios"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Envios",
+      "item": [
+        {
+          "name": "Registrar envio",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreRemitente\": \"Laura Gomez\",\n  \"documentoRemitente\": \"1020456789\",\n  \"telefonoRemitente\": \"3005550190\",\n  \"direccionOrigen\": \"Calle 72 #10-34\",\n  \"ciudadOrigen\": \"Bogota\",\n  \"nombreDestinatario\": \"Carlos Perez\",\n  \"documentoDestinatario\": \"80123456\",\n  \"telefonoDestinatario\": \"3105550144\",\n  \"direccionDestino\": \"Carrera 43A #7-50\",\n  \"ciudadDestino\": \"Medellin\",\n  \"peso\": \"2.5\",\n  \"tipoServicio\": \"EXPRESS\",\n  \"fechaEstimadaEntrega\": \"2026-12-31\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/envios", "host": ["{{baseUrl}}"], "path": ["api", "envios"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "description": "201 esperado. Ajusta fechaEstimadaEntrega a una fecha futura real; si pones una fecha pasada debe dar 400 (HU-015)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.environment.set(\"numeroGuia\", pm.response.json().numeroGuia);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar envios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/envios", "host": ["{{baseUrl}}"], "path": ["api", "envios"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Consultar envio por guia (publico, sin login)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/envios/{{numeroGuia}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "envios", "{{numeroGuia}}"]
+            },
+            "auth": { "type": "noauth" },
+            "description": "Este endpoint es publico a proposito (como rastrear un paquete en cualquier courier): no requiere Authorization."
+          }
+        },
+        {
+          "name": "Actualizar estado del envio",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nuevoEstado\": \"En transito\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/api/envios/{{numeroGuia}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "envios", "{{numeroGuia}}", "estado"]
+            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "description": "Transiciones validas desde Pendiente de recoleccion: En transito, Con incidencia. Un valor invalido (ej. Entregado directo) debe dar 409."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Eventos logisticos",
+      "item": [
+        {
+          "name": "Listar eventos del envio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/envios/{{numeroGuia}}/eventos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "envios", "{{numeroGuia}}", "eventos"]
+            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Registrar evento",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"EN BODEGA\",\n  \"ubicacion\": \"Bodega Bogota\",\n  \"detalle\": \"Clasificado\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/envios/{{numeroGuia}}/eventos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "envios", "{{numeroGuia}}", "eventos"]
+            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const eventos = pm.response.json().eventos;",
+                  "    if (eventos && eventos.length > 0) {",
+                  "        pm.environment.set(\"eventoId\", eventos[eventos.length - 1].id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar evento",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/envios/{{numeroGuia}}/eventos/{{eventoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "envios", "{{numeroGuia}}", "eventos", "{{eventoId}}"]
+            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Centros de Distribucion",
+      "item": [
+        {
+          "name": "Crear centro ORIGEN",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Bodega Postman Origen\",\n  \"ciudad\": \"Bogota\",\n  \"direccion\": \"Calle 100 #10-20\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/centros-distribucion", "host": ["{{baseUrl}}"], "path": ["api", "centros-distribucion"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["if (pm.response.code === 201) { pm.environment.set(\"centroOrigenId\", pm.response.json().id); }"] }
+            }
+          ]
+        },
+        {
+          "name": "Crear centro DESTINO",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Bodega Postman Destino\",\n  \"ciudad\": \"Medellin\",\n  \"direccion\": \"Carrera 50 #30-40\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/centros-distribucion", "host": ["{{baseUrl}}"], "path": ["api", "centros-distribucion"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["if (pm.response.code === 201) { pm.environment.set(\"centroDestinoId\", pm.response.json().id); }"] }
+            }
+          ]
+        },
+        {
+          "name": "Listar centros",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/centros-distribucion", "host": ["{{baseUrl}}"], "path": ["api", "centros-distribucion"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Consultar centro ORIGEN",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/centros-distribucion/{{centroOrigenId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "centros-distribucion", "{{centroOrigenId}}"]
+            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Actualizar centro ORIGEN",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Bodega Postman Origen Renombrada\",\n  \"ciudad\": \"Bogota\",\n  \"direccion\": \"Calle 100 #10-20\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/centros-distribucion/{{centroOrigenId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "centros-distribucion", "{{centroOrigenId}}"]
+            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Eliminar centro (fallara 400 si ya tiene una ruta asociada)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/centros-distribucion/{{centroOrigenId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "centros-distribucion", "{{centroOrigenId}}"]
+            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "description": "Ejecuta esto solo si quieres probar el bloqueo de borrado (HU-013/014). Si ya creaste una ruta con este centro, debe dar 400."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Rutas",
+      "item": [
+        {
+          "name": "Crear ruta (usa los centros creados arriba)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ruta Postman Bogota - Medellin\",\n  \"centroOrigenId\": {{centroOrigenId}},\n  \"centroDestinoId\": {{centroDestinoId}},\n  \"paradasIntermediasIds\": []\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/rutas", "host": ["{{baseUrl}}"], "path": ["api", "rutas"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "description": "Si pones el mismo id en origen y destino, debe dar 400 (CA-14-B)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["if (pm.response.code === 201) { pm.environment.set(\"rutaId\", pm.response.json().id); }"] }
+            }
+          ]
+        },
+        {
+          "name": "Listar rutas (incluye las 18 sembradas)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/rutas", "host": ["{{baseUrl}}"], "path": ["api", "rutas"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Consultar ruta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/rutas/{{rutaId}}", "host": ["{{baseUrl}}"], "path": ["api", "rutas", "{{rutaId}}"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Actualizar ruta (agrega una parada intermedia)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ruta Postman Bogota - Medellin (con parada)\",\n  \"centroOrigenId\": {{centroOrigenId}},\n  \"centroDestinoId\": {{centroDestinoId}},\n  \"paradasIntermediasIds\": [{{centroOrigenId}}]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/rutas/{{rutaId}}", "host": ["{{baseUrl}}"], "path": ["api", "rutas", "{{rutaId}}"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "description": "Ejemplo simplificado: en un caso real la parada seria un tercer centro distinto a origen/destino."
+          }
+        },
+        {
+          "name": "Eliminar ruta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/rutas/{{rutaId}}", "host": ["{{baseUrl}}"], "path": ["api", "rutas", "{{rutaId}}"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "description": "Ejecuta solo si ya terminaste de probar asignacion de transporte con esta ruta."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Vehiculos",
+      "item": [
+        {
+          "name": "Crear vehiculo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"POS-001\",\n  \"conductor\": \"Juan Postman\",\n  \"tipo\": \"Furgon\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/vehiculos", "host": ["{{baseUrl}}"], "path": ["api", "vehiculos"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "description": "Si repites esta request con la misma placa, debe dar 409."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["if (pm.response.code === 201) { pm.environment.set(\"vehiculoId\", pm.response.json().id); }"] }
+            }
+          ]
+        },
+        {
+          "name": "Listar vehiculos (incluye los 5 sembrados)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vehiculos", "host": ["{{baseUrl}}"], "path": ["api", "vehiculos"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Consultar vehiculo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vehiculos/{{vehiculoId}}", "host": ["{{baseUrl}}"], "path": ["api", "vehiculos", "{{vehiculoId}}"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Actualizar vehiculo",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"POS-001\",\n  \"conductor\": \"Juan Postman Actualizado\",\n  \"tipo\": \"Camion\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/vehiculos/{{vehiculoId}}", "host": ["{{baseUrl}}"], "path": ["api", "vehiculos", "{{vehiculoId}}"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        },
+        {
+          "name": "Eliminar vehiculo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vehiculos/{{vehiculoId}}", "host": ["{{baseUrl}}"], "path": ["api", "vehiculos", "{{vehiculoId}}"] },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Asignacion de Transporte",
+      "item": [
+        {
+          "name": "Asignar transporte al envio",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rutaId\": {{rutaId}},\n  \"vehiculoId\": {{vehiculoId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/envios/{{numeroGuia}}/asignacion-transporte",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "envios", "{{numeroGuia}}", "asignacion-transporte"]
+            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "description": "200 esperado mientras el envio este en 'Pendiente de recoleccion'. Si antes avanzaste el estado del envio con la request de 'Actualizar estado', esto puede dar 409 (CA-07-C) - es el comportamiento correcto."
+          }
+        },
+        {
+          "name": "Consultar asignacion del envio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/envios/{{numeroGuia}}/asignacion-transporte",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "envios", "{{numeroGuia}}", "asignacion-transporte"]
+            },
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] }
+          }
+        }
+      ]
+    }
+  ]
+}

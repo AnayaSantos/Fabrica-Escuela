@@ -162,11 +162,16 @@ public class EnvioService {
     }
 
     private LocalDate parseFecha(String value) {
+        LocalDate fecha;
         try {
-            return LocalDate.parse(clean(value));
+            fecha = LocalDate.parse(clean(value));
         } catch (DateTimeParseException exception) {
             throw new ReglaNegocioException("Fecha estimada de entrega no valida.");
         }
+        if (fecha.isBefore(LocalDate.now())) {
+            throw new ReglaNegocioException("La fecha estimada de entrega no puede estar en el pasado.");
+        }
+        return fecha;
     }
 
     private String clean(String value) {

@@ -13,9 +13,11 @@ import org.springframework.stereotype.Component;
 public class EnvioMapper {
 
     private final FechaFormatter fechaFormatter;
+    private final AlertaTiempoCalculator alertaTiempoCalculator;
 
-    public EnvioMapper(FechaFormatter fechaFormatter) {
+    public EnvioMapper(FechaFormatter fechaFormatter, AlertaTiempoCalculator alertaTiempoCalculator) {
         this.fechaFormatter = fechaFormatter;
+        this.alertaTiempoCalculator = alertaTiempoCalculator;
     }
 
     public EnvioRecordResponse toRecord(Envio envio, List<EventoLogistico> eventos) {
@@ -49,7 +51,13 @@ public class EnvioMapper {
                 envio.getDestinatario().getNombre(),
                 envio.getDireccionOrigen().getCiudad(),
                 envio.getDireccionDestino().getCiudad(),
-                eventos.stream().map(this::toEventoConsulta).toList()
+                envio.getFechaEstimadaEntrega().toString(),
+                eventos.stream().map(this::toEventoConsulta).toList(),
+                alertaTiempoCalculator.calcular(
+                        envio.getEstadoActual(),
+                        envio.getFechaEstimadaEntrega(),
+                        envio.getFechaUltimaActualizacion()
+                )
         );
     }
 

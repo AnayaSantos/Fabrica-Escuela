@@ -2,15 +2,13 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
-ARG VITE_DATA_SOURCE=api
-ARG VITE_API_URL=http://localhost:8080
-ENV VITE_DATA_SOURCE=$VITE_DATA_SOURCE
-ENV VITE_API_URL=$VITE_API_URL
+ARG VITE_API_BASE_URL=http://localhost:8080
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
-COPY package*.json ./
+COPY Frontend/package*.json ./
 RUN npm ci
 
-COPY . .
+COPY Frontend/ .
 RUN npm run build
 
 FROM nginx:1.27-alpine

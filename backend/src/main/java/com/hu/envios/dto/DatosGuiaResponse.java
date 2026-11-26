@@ -9,6 +9,8 @@ public record DatosGuiaResponse(
         String destinatario,
         String origen,
         String destino,
-        List<EventoConsultaResponse> eventos
+        String fechaEstimadaEntrega,
+        List<EventoConsultaResponse> eventos,
+        String alertaTiempo
 ) {
 }
